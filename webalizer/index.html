@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SiteScan — Websitecheck</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="wrap">
+    <!-- Bovenbalk met SiteScan links en het logo rechts. -->
+    <div class="top">
+      <div class="brand"><span class="brand-mark">S</span> SiteScan</div>
+      <img class="logo" src="img/logo2.jpg" alt="Digiwerkplaats Rijnmond">
+    </div>
+
+    <!-- Titel en introductie. -->
+    <header class="hero">
+      <div class="eyebrow">Snelle websitecheck</div>
+      <h1>Maak je website<br>een stukje beter.</h1>
+      <p class="intro">Vul een openbaar webadres in. SiteScan controleert technische basispunten en geeft concrete suggesties.</p>
+    </header>
+
+    <!-- Invoer en resultaten. -->
+    <main class="panel">
+      <form id="scan-form">
+        <input id="url" type="url" placeholder="https://voorbeeld.nl" required aria-label="Website-adres">
+        <button id="scan-button" type="submit">✦ &nbsp; Start analyse</button>
+      </form>
+      <p id="message" role="status">Je resultaten verschijnen hier na de scan.</p>
+      <section id="result" aria-live="polite"></section>
+    </main>
+  </div>
+</body>
+</html>

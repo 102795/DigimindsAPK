@@ -1,0 +1,78 @@
+/* Basisinstellingen en achtergrond. */
+:root {
+  color-scheme: light;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #18233b;
+  background: #f4f7fb;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background: radial-gradient(ellipse at 50% -20%, #dcecff 0, transparent 55%), #f4f7fb;
+}
+
+/* Centreer de inhoud en geef de pagina ruimte. */
+.wrap { width: min(900px, calc(100% - 32px)); margin: 0 auto; padding: 48px 0 70px; }
+
+/* Bovenbalk met SiteScan links en het logo rechts. */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 35px; }
+.brand { display: flex; align-items: center; gap: 11px; font-weight: 750; letter-spacing: -.03em; }
+.brand-mark { display: grid; place-items: center; width: 38px; height: 38px; color: white; border-radius: 12px; background: linear-gradient(145deg, #6549e8, #3984ed); box-shadow: 0 7px 18px #6558d844; }
+
+/* Het logo heeft een wit vlak; multiply laat het wit samensmelten met de achtergrond. */
+.logo { height: 90px; width: auto; margin: -18px 0; mix-blend-mode: multiply; }
+
+/* Titel en introductietekst. */
+.hero { text-align: center; margin: 0 auto 28px; }
+.eyebrow { color: #6549e8; text-transform: uppercase; letter-spacing: .14em; font-size: .75rem; font-weight: 800; }
+h1 { margin: 12px 0 10px; font-size: clamp(2.1rem, 6vw, 3.5rem); letter-spacing: -.055em; line-height: 1.05; }
+.intro { max-width: 590px; margin: auto; color: #63708a; line-height: 1.65; }
+
+/* Kaart met URL-invoer en analyse-uitkomst. */
+.panel { padding: 24px; background: #fff; border: 1px solid #e6eaf1; border-radius: 20px; box-shadow: 0 18px 55px #24385d12; }
+form { display: flex; gap: 10px; padding: 7px; background: #f7f8fc; border: 1px solid #e6eaf2; border-radius: 14px; }
+input { flex: 1; min-width: 0; padding: 12px 13px; border: 0; outline: 0; background: transparent; color: #18233b; font: inherit; }
+input:focus-visible { outline: 2px solid #9e91f7; border-radius: 8px; }
+button { padding: 12px 20px; color: #fff; background: linear-gradient(120deg, #624be4, #397fe2); border: 0; border-radius: 10px; font: inherit; font-weight: 700; cursor: pointer; box-shadow: 0 5px 14px #5747d333; transition: transform .15s, filter .15s; }
+button:hover { filter: brightness(1.06); transform: translateY(-1px); }
+button:disabled { opacity: .65; cursor: wait; transform: none; }
+#message { min-height: 1.5em; margin: 14px 4px 0; color: #596984; font-size: .92rem; }
+
+/* Score en resultaatkaarten. */
+.summary { display: flex; align-items: center; gap: 18px; margin: 20px 0; padding: 18px; background: linear-gradient(115deg, #f3f0ff, #eff7ff); border-radius: 15px; }
+.score { display: grid; place-items: center; flex: 0 0 76px; height: 76px; color: #6048d8; background: white; border: 5px solid #d9d2ff; border-radius: 50%; font-size: 1.18rem; font-weight: 800; }
+.summary p { margin: 0; color: #53617b; overflow-wrap: anywhere; font-size: .94rem; }
+.section-title { margin: 28px 0 12px; font-size: 1.1rem; }
+.finding { display: grid; grid-template-columns: 34px 1fr; gap: 12px; margin: 10px 0; padding: 15px; background: #fff; border: 1px solid #e8ebf2; border-left: 5px solid #d9dde6; border-radius: 14px; box-shadow: 0 4px 14px #24385d08; }
+.icon { display: grid; place-items: center; width: 32px; height: 32px; color: #53617b; background: #f0f2f7; border-radius: 10px; font-weight: 800; }
+.finding h3 { margin: 1px 0 5px; font-size: .98rem; }
+.finding p { margin: 0; color: #66728a; line-height: 1.55; font-size: .92rem; }
+.notice { margin: 20px 2px 0; color: #778198; line-height: 1.5; font-size: .82rem; }
+
+/* Kleuren per niveau: groen = goed, geel = middelmatig, rood = slecht. */
+.finding.good { border-left-color: #1fa463; }
+.finding.high { border-left-color: #d64545; }
+.finding.medium, .finding.low { border-left-color: #e0a800; }
+
+.finding.good .icon { color: #12804b; background: #e7f7ee; }
+.finding.high .icon { color: #bd3838; background: #fff0ef; }
+.finding.medium .icon, .finding.low .icon { color: #a36b00; background: #fff5df; }
+
+/* Het advies krijgt dezelfde kleur als de bevinding. */
+.finding .advice { margin-top: 9px; padding: 9px 11px; border-radius: 9px; }
+.finding.good .advice { color: #0f6a3f; background: #e7f7ee; }
+.finding.high .advice { color: #a42d2d; background: #fff0ef; }
+.finding.medium .advice, .finding.low .advice { color: #7d5400; background: #fff5df; }
+
+/* Op kleine schermen komt de knop onder het invoerveld. */
+@media (max-width: 560px) {
+  .wrap { padding-top: 26px; }
+  .logo { height: 64px; margin: -12px 0; }
+  .panel { padding: 16px; }
+  form { flex-direction: column; }
+  button { width: 100%; }
+  .summary { align-items: flex-start; }
+}
