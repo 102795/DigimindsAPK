@@ -121,3 +121,10 @@ button:disabled { opacity: .65; cursor: wait; transform: none; }
 @keyframes meter-in{from{transform:scaleX(.05)}to{transform:scaleX(1)}}
 @media(max-width:680px){.preview-section{padding-top:54px}.preview-card{padding:21px}.preview-tip{gap:9px}.closing-cta{margin-top:52px;padding:40px 20px}}
 @media(prefers-reduced-motion:reduce){.preview-card,.closing-cta:before{animation:none}}
+.top .logo{transform-origin:50% 55%;animation:logo-arrive .8s cubic-bezier(.2,.8,.2,1) both;filter:drop-shadow(0 5px 10px rgba(25,45,80,.12));transition:transform .25s ease,filter .25s ease}
+.top .logo:hover{transform:translateY(-2px) rotate(-2deg) scale(1.025);filter:drop-shadow(0 9px 14px rgba(25,45,80,.17))}
+.nav-mark{position:relative;overflow:hidden}
+.nav-mark:after{position:absolute;inset:-40% auto -40% -60%;width:45%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.8),transparent);content:"";transform:skewX(-20deg);animation:mark-glint 5s ease-in-out 1.4s infinite}
+@keyframes logo-arrive{0%{opacity:0;transform:translateY(9px) scale(.88) rotate(-5deg)}65%{opacity:1;transform:translateY(-2px) scale(1.025) rotate(1deg)}100%{opacity:1;transform:translateY(0) scale(1) rotate(0)}}
+@keyframes mark-glint{0%,65%,100%{left:-60%}35%{left:125%}}
+@media(prefers-reduced-motion:reduce){.top .logo{animation:none;transition:none}.nav-mark:after{animation:none}}
