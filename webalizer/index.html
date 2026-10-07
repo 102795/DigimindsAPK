@@ -9,15 +9,23 @@
 </head>
 <body>
   <div class="wrap">
+    <nav class="site-nav" aria-label="Hoofdnavigatie">
+      <a class="nav-brand" href="#home"><span class="nav-mark">✦</span> SiteScan</a>
+      <div class="nav-links">
+        <a href="#hoe-werkt-het">Hoe werkt het?</a>
+        <a href="#wat-krijg-je">Wat krijg je?</a>
+        <a class="nav-cta" href="#scan-form">Start een scan <span aria-hidden="true">↗</span></a>
+      </div>
+    </nav>
     <!-- Bovenbalk: alleen het logo, linksboven. -->
     <div class="top">
-      <img class="logo" src="img/logo2.jpg" alt="Digiwerkplaats Rijnmond">
+      <img class="logo" src="logo.jpg" alt="Digiwerkplaats Rijnmond">
     </div>
 
     <!-- Titel en introductie. -->
-    <header class="hero">
-      <div class="eyebrow">Snelle websitecheck</div>
-      <h1>Maak je website<br>een stukje beter.</h1>
+    <header class="hero" id="home">
+      <div class="eyebrow">✦ &nbsp; Maak meer van je website</div>
+      <h1>Maak je website<br>krijg vebeterpunten</h1>
       <p class="intro">Vul een openbaar webadres in. SiteScan controleert technische basispunten en geeft concrete suggesties.</p>
     </header>
 
@@ -30,6 +38,30 @@
       <p id="message" role="status">Je resultaten verschijnen hier na de scan.</p>
       <section id="result" aria-live="polite"></section>
     </main>
+    <section class="feature-section" id="wat-krijg-je">
+      <div class="section-heading"><span class="eyebrow">Helder en praktisch</span><h2>Meer grip op je website.</h2><p>Een goede websitecheck maakt verbeteringen overzichtelijk en behapbaar.</p></div>
+      <div class="feature-grid">
+        <article class="feature-card"><span class="feature-icon">◎</span><h3>Inzicht in je site</h3><p>Zie in één overzicht welke punten aandacht verdienen.</p></article>
+        <article class="feature-card"><span class="feature-icon">✧</span><h3>Concrete verbeterpunten</h3><p>Ontvang praktische suggesties in begrijpelijke taal.</p></article>
+        <article class="feature-card"><span class="feature-icon">↗</span><h3>Een volgende stap</h3><p>Kies zelf waar je begint en verbeter stap voor stap.</p></article>
+      </div>
+    </section>
+    <section class="steps-section" id="hoe-werkt-het">
+      <div class="section-heading"><span class="eyebrow">In drie eenvoudige stappen</span><h2>Van website naar inzicht.</h2></div>
+      <div class="steps-grid"><article><span>01</span><h3>Vul je URL in</h3><p>Gebruik het openbare adres van je website.</p></article><article><span>02</span><h3>Start de analyse</h3><p>SiteScan bekijkt de beschikbare websitegegevens.</p></article><article><span>03</span><h3>Bekijk je tips</h3><p>Gebruik de resultaten als startpunt voor verbeteringen.</p></article></div>
+    </section>
+    <section class="preview-section" aria-labelledby="preview-title">
+      <div class="section-heading"><span class="eyebrow">Zo ziet inzicht eruit</span><h2 id="preview-title">Duidelijke tips, meteen toepasbaar.</h2><p>Na de scan zie je de uitkomsten overzichtelijk bij elkaar.</p></div>
+      <div class="preview-card">
+        <div class="preview-top"><div><span class="preview-label">VOORBEELDRESULTAAT</span><h3>jouwwebsite.nl</h3></div><span class="preview-score"><b>7,8</b><small>/ 10</small></span></div>
+        <div class="preview-meter"><span></span></div>
+        <div class="preview-tip"><span class="tip-dot tip-good"></span><div><b>Een mooi begin</b><p>Je website gebruikt een beveiligde verbinding.</p></div><span class="tip-status">Goed</span></div>
+        <div class="preview-tip"><span class="tip-dot tip-check"></span><div><b>Ruimte om te verbeteren</b><p>Bekijk of afbeeldingen sneller kunnen laden.</p></div><span class="tip-status">Tip</span></div>
+        <p class="preview-disclaimer">Illustratief voorbeeld — jouw scanresultaten kunnen anders zijn.</p>
+      </div>
+    </section>
+    <section class="closing-cta"><span class="eyebrow">Kleine stap, helder begin</span><h2>Benieuwd hoe jouw website ervoor staat?</h2><p>Start de scan en ontdek waar je verder kunt verbeteren.</p><a href="#scan-form" class="cta-link">Start je websitecheck <span aria-hidden="true">↗</span></a></section>
+    <footer class="site-footer"><span>SiteScan</span><span>Een initiatief van Digiwerkplaats Rijnmond</span><a href="#home">Terug naar boven ↑</a></footer>
   </div>
 </body>
 </html>

@@ -486,24 +486,27 @@ function sendJson(res, status, data) {
 
 // Maak de server: bestanden serveren (GET) en analyse starten (POST).
 const server = http.createServer(async (req, res) => {
-  // GET: serveer de pagina, script.js en afbeeldingen uit dezelfde map.
+  // GET: serveer bestanden uit de hoofdmap en afbeeldingen uit img/.
   if (req.method === "GET") {
     let pathname = decodeURIComponent(req.url.split("?")[0]);
     if (pathname === "/") pathname = "/index.html";
 
-    // Alleen bestanden direct in de map; geen submappen en geen server.js.
+    const segments = pathname.split("/").filter(Boolean);
     const name = path.basename(pathname);
     const type = name === "script.js" ? "application/javascript; charset=utf-8" : TYPES[path.extname(name).toLowerCase()];
-    if (!type || pathname !== "/" + name) {
+    const isRootFile = segments.length === 1 && pathname === "/" + name;
+    const isImageFile = segments.length === 2 && segments[0] === "img"
+      && pathname === "/img/" + name && type && type.startsWith("image/");
+    if (!type || (!isRootFile && !isImageFile)) {
       res.writeHead(404);
       res.end("Niet gevonden: " + pathname);
       return;
     }
 
-    fs.readFile(path.join(__dirname, name), (error, payload) => {
+    fs.readFile(path.join(__dirname, ...segments), (error, payload) => {
       if (error) {
         res.writeHead(404);
-        res.end(`${name} staat niet in de map naast server.js`);
+        res.end(`${pathname} staat niet op de server`);
         return;
       }
       res.writeHead(200, { "Content-Type": type, "Content-Length": payload.length });

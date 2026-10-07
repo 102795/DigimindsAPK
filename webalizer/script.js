@@ -30,8 +30,6 @@ form.addEventListener("submit", async (event) => {
 });
 
 // Koppel een scanresultaat aan een praktische tip.
-// Koppel een scanresultaat aan een praktische tip.
-// Koppel een scanresultaat aan een praktische tip.
 function recommendationFor(title) {
   const tips = {
     // Slechte en middelmatige punten.
