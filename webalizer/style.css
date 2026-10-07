@@ -17,13 +17,9 @@ body {
 /* Centreer de inhoud en geef de pagina ruimte. */
 .wrap { width: min(900px, calc(100% - 32px)); margin: 0 auto; padding: 48px 0 70px; }
 
-/* Bovenbalk met SiteScan links en het logo rechts. */
-.top { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 35px; }
-.brand { display: flex; align-items: center; gap: 11px; font-weight: 750; letter-spacing: -.03em; }
-.brand-mark { display: grid; place-items: center; width: 38px; height: 38px; color: white; border-radius: 12px; background: linear-gradient(145deg, #6549e8, #3984ed); box-shadow: 0 7px 18px #6558d844; }
-
-/* Het logo heeft een wit vlak; multiply laat het wit samensmelten met de achtergrond. */
-.logo { height: 90px; width: auto; margin: -18px 0; mix-blend-mode: multiply; }
+/* Bovenbalk: alleen het logo, linksboven. */
+.top { display: flex; align-items: center; margin-bottom: 35px; }
+.logo { height: 80px; width: auto; margin: -18px 0; mix-blend-mode: multiply; }
 
 /* Titel en introductietekst. */
 .hero { text-align: center; margin: 0 auto 28px; }
@@ -70,7 +66,7 @@ button:disabled { opacity: .65; cursor: wait; transform: none; }
 /* Op kleine schermen komt de knop onder het invoerveld. */
 @media (max-width: 560px) {
   .wrap { padding-top: 26px; }
-  .logo { height: 64px; margin: -12px 0; }
+  .logo { height: 56px; margin: -12px 0; }
   .panel { padding: 16px; }
   form { flex-direction: column; }
   button { width: 100%; }
