@@ -777,11 +777,12 @@ async function analyze(url) {
   const strengths = auditResults
     .filter(({ audit }) => audit.score >= 0.9)
     .sort((a, b) => b.audit.score - a.audit.score)
-    .slice(0, 15)
     .map(({ id, audit }) => ({
       id,
       ...explainAudit(id, audit, true),
-    }));
+    }))
+    .filter(({ title }) => String(title || "").trim().replace(/[.!?]+$/, "").toLowerCase() !== "dit onderdeel werkt goed")
+    .slice(0, 15);
 
   return {
     url: lighthouse.finalDisplayedUrl || payload.id || safeUrl,
@@ -814,7 +815,11 @@ function sendReportPdf(res, report) {
     .trim()
     .slice(0, max);
   const categories = Array.isArray(report.categories) ? report.categories.slice(0, 4) : [];
-  const strengths = Array.isArray(report.strengths) ? report.strengths.slice(0, 15) : [];
+  const strengths = Array.isArray(report.strengths)
+    ? report.strengths
+      .filter((strength) => strength && String(strength.title || "").trim().replace(/[.!?]+$/, "").toLowerCase() !== "dit onderdeel werkt goed")
+      .slice(0, 15)
+    : [];
   const findings = Array.isArray(report.findings) ? report.findings.slice(0, 15) : [];
   const score = Math.max(0, Math.min(100, Math.round(Number(report.score) || 0)));
   const date = new Date().toLocaleDateString("nl-NL");
@@ -870,7 +875,7 @@ function sendReportPdf(res, report) {
   doc.fillColor("#18233b").font("Helvetica-Bold").fontSize(15).text("Wat gaat al goed");
   doc.moveDown(0.5);
   if (!strengths.length) {
-    doc.font("Helvetica").fontSize(10).fillColor("#59657a").text("Er zijn geen positieve controles opgenomen in dit rapport.");
+    doc.font("Helvetica").fontSize(10).fillColor("#59657a").text("Er zijn geen positieve controles met voldoende toelichting om in dit rapport te tonen.");
   }
   for (const strength of strengths) {
     if (doc.y > 700) doc.addPage();

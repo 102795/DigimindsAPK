@@ -3,6 +3,10 @@ const form = document.querySelector("#scan-form");
 const button = document.querySelector("#scan-button");
 const message = document.querySelector("#message");
 const result = document.querySelector("#result");
+const progress = document.querySelector("#scan-progress");
+const progressLabel = document.querySelector("#scan-progress-label");
+const progressState = document.querySelector("#scan-progress-state");
+const progressTrack = progress.querySelector("[role='progressbar']");
 let latestReport = null;
 
 // Vraag een mobiele Lighthouse-scan aan bij de Node-server.
@@ -10,7 +14,13 @@ form.addEventListener("submit", async (event) => {
   event.preventDefault();
   result.replaceChildren();
   latestReport = null;
-  message.textContent = "Google Lighthouse analyseert de website... Dit kan even duren.";
+  message.textContent = "Google Lighthouse analyseert je website. Dit kan even duren.";
+  progress.hidden = false;
+  progress.classList.remove("is-complete");
+  progressLabel.textContent = "Scan wordt uitgevoerd";
+  progressState.textContent = "Dit kan even duren";
+  progressTrack.removeAttribute("aria-valuenow");
+  progressTrack.setAttribute("aria-valuetext", "Scan wordt uitgevoerd");
   button.disabled = true;
 
   try {
@@ -24,8 +34,15 @@ form.addEventListener("submit", async (event) => {
 
     latestReport = data;
     showReport(data);
-    message.textContent = "Lighthouse-scan afgerond — hieronder staan je resultaten.";
+    progress.classList.add("is-complete");
+    progressLabel.textContent = "Scan afgerond";
+    progressState.textContent = "Je rapport staat hieronder";
+    progressTrack.setAttribute("aria-valuenow", "100");
+    progressTrack.setAttribute("aria-valuetext", "Scan afgerond");
+    message.textContent = "Scan klaar. Hieronder zie je wat goed gaat en waar je je website verder kunt verbeteren.";
+    result.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
   } catch (error) {
+    progress.hidden = true;
     message.textContent = error.message;
   } finally {
     button.disabled = false;
@@ -35,6 +52,15 @@ form.addEventListener("submit", async (event) => {
 // Bouw de score, categorieën en Lighthouse-verbeterpunten op de pagina op.
 function showReport(data) {
   const scoreValue = Math.max(0, Math.min(100, Number(data.score) || 0));
+
+  const reportIntro = document.createElement("div");
+  reportIntro.className = "scan-report-intro";
+  const reportTitle = document.createElement("h2");
+  reportTitle.textContent = "Jouw scanrapport";
+  const reportSummary = document.createElement("p");
+  reportSummary.textContent = `Je website scoort ${scoreValue} van de 100. Hieronder zie je wat al goed werkt en welke verbeteringen je kunt oppakken.`;
+  reportIntro.append(reportTitle, reportSummary);
+  result.append(reportIntro);
 
   const scoreBar = document.createElement("section");
   scoreBar.className = "site-score-bar";
@@ -102,11 +128,14 @@ function showReport(data) {
   strengthsHeading.textContent = "Wat gaat al goed";
   result.append(strengthsHeading);
 
-  const strengths = data.strengths || [];
+  const strengths = (data.strengths || []).filter((strength) => {
+    const title = String(strength?.title || "").trim().replace(/[.!?]+$/, "").toLowerCase();
+    return title !== "dit onderdeel werkt goed";
+  });
   if (strengths.length === 0) {
     const empty = document.createElement("p");
     empty.className = "notice";
-    empty.textContent = "Lighthouse heeft geen positieve controles voor deze scan gerapporteerd.";
+    empty.textContent = "Er zijn geen positieve controles met genoeg uitleg om hier te tonen.";
     result.append(empty);
   }
 
@@ -203,7 +232,7 @@ async function downloadReport() {
     document.body.append(link);
     link.click();
     link.remove();
-    URL.revokeObjectURL(downloadUrl);
+    window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 60_000);
   } catch (error) {
     message.textContent = error.message;
   } finally {
