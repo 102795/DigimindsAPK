@@ -3,123 +3,153 @@ const form = document.querySelector("#scan-form");
 const button = document.querySelector("#scan-button");
 const message = document.querySelector("#message");
 const result = document.querySelector("#result");
+let latestReport = null;
 
-// Stuur de ingevulde URL naar Python wanneer het formulier wordt verstuurd.
+// Vraag een mobiele Lighthouse-scan aan bij de Node-server.
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
   result.replaceChildren();
-  message.textContent = "We bekijken de pagina...";
+  latestReport = null;
+  message.textContent = "Google Lighthouse analyseert de website... Dit kan even duren.";
   button.disabled = true;
 
   try {
     const response = await fetch("/api/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ url: document.querySelector("#url").value.trim() })
+      body: JSON.stringify({ url: document.querySelector("#url").value.trim() }),
     });
     const data = await response.json();
+    if (!response.ok) throw new Error(data.error || "De Lighthouse-scan is mislukt.");
 
-    if (!response.ok) throw new Error(data.error || "De scan is mislukt");
+    latestReport = data;
     showReport(data);
-    message.textContent = "Analyse afgerond — hieronder staan je resultaten.";
+    message.textContent = "Lighthouse-scan afgerond — hieronder staan je resultaten.";
   } catch (error) {
-    message.textContent = `${error.message} Controleer of de Python-server draait.`;
+    message.textContent = error.message;
   } finally {
     button.disabled = false;
   }
 });
 
-// Koppel een scanresultaat aan een praktische tip.
-function recommendationFor(title) {
-  const tips = {
-    // Slechte en middelmatige punten.
-    "Paginatitel ontbreekt": "Schrijf een unieke titel die vertelt wat bezoekers op deze pagina vinden.",
-    "Paginatitel heeft een slechte lengte": "Houd de titel tussen 30 en 60 tekens, zodat hij compleet in Google past.",
-    "Meta description ontbreekt": "Schrijf een korte samenvatting van de inhoud van deze pagina.",
-    "Meta description heeft een slechte lengte": "Houd de description tussen 70 en 160 tekens.",
-    "Geen H1-kop gevonden": "Voeg bovenaan een duidelijke hoofdkop toe die het onderwerp benoemt.",
-    "Meerdere H1-koppen gevonden": "Gebruik één H1 en maak van de andere koppen H2 of H3.",
-    "Koppenvolgorde klopt niet": "Ga stap voor stap: H1, dan H2, dan H3. Sla geen niveaus over.",
-    "Afbeeldingen zonder alt-tekst": "Beschrijf betekenisvolle afbeeldingen kort in alt-tekst. Decoratieve afbeeldingen kunnen een lege alt-tekst krijgen.",
-    "Afbeeldingen zonder afmetingen": "Voeg width en height toe aan elke afbeelding, zodat de pagina niet verspringt tijdens het laden.",
-    "Website gebruikt geen HTTPS": "Stel HTTPS in bij je hostingprovider en stuur bezoekers door naar de beveiligde versie.",
-    "Mixed content gevonden": "Wijzig alle http://-links van afbeeldingen, scripts en stijlen naar https://.",
-    "Pagina staat op noindex": "Verwijder noindex uit de robots meta-tag als de pagina in Google moet verschijnen.",
-    "Doctype ontbreekt": "Begin je HTML-bestand met <!doctype html>.",
-    "Tekenset ontbreekt": "Voeg <meta charset=\"utf-8\"> toe bovenin de head.",
-    "Taalattribuut ontbreekt": "Voeg lang=\"nl\" toe aan de html-tag.",
-    "Viewport-tag ontbreekt": "Voeg <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"> toe in de head.",
-    "Canonical-link ontbreekt": "Voeg <link rel=\"canonical\" href=\"...\"> toe met de voorkeurs-URL van de pagina.",
-    "Open Graph-titel ontbreekt": "Voeg <meta property=\"og:title\" content=\"...\"> toe voor een nette weergave op social media.",
-    "Open Graph-beschrijving ontbreekt": "Voeg <meta property=\"og:description\" content=\"...\"> toe.",
-    "Open Graph-afbeelding ontbreekt": "Voeg <meta property=\"og:image\" content=\"https://...\"> toe met een afbeelding van minimaal 1200x630 pixels.",
-    "Twitter Card ontbreekt": "Voeg <meta name=\"twitter:card\" content=\"summary_large_image\"> toe.",
-    "Gestructureerde data ontbreekt": "Voeg JSON-LD toe (zoals Organization of Article) zodat zoekmachines je pagina beter begrijpen.",
-    "Favicon ontbreekt": "Voeg een favicon toe met <link rel=\"icon\" href=\"/favicon.ico\">.",
-    "robots.txt ontbreekt": "Maak een robots.txt in de hoofdmap van je website.",
-    "sitemap.xml ontbreekt": "Maak een sitemap.xml en verwijs ernaar in je robots.txt.",
-    "Vage linkteksten gevonden": "Vervang 'klik hier' door een tekst die zegt waar de link naartoe gaat.",
-    "Links openen onveilig in nieuw tabblad": "Voeg rel=\"noopener noreferrer\" toe aan links met target=\"_blank\".",
-    "Weinig tekst op de pagina": "Voeg meer nuttige inhoud toe. Minimaal 300 woorden helpt zoekmachines de pagina te begrijpen.",
-    "Scripts blokkeren het laden": "Voeg defer of async toe aan scripts in de head.",
-    "Beveiligingsheaders ontbreken": "Stel de ontbrekende headers in op je server of hostingprovider.",
-    "Serverinformatie lekt": "Verwijder de X-Powered-By header, zodat aanvallers je techniek niet zien.",
-    "Compressie ontbreekt": "Zet gzip of brotli aan op je server of hostingprovider.",
-    "Cache-Control ontbreekt": "Stel Cache-Control in, zodat bezoekers de pagina sneller opnieuw laden.",
-    "HTML is groot": "Verklein de HTML: verwijder ongebruikte code en laad grote delen later.",
-    "HTML is erg groot": "Verklein de HTML sterk: verwijder ongebruikte code en laad grote delen later.",
-    "Te veel doorverwijzingen": "Verwijs direct naar de eindpagina in plaats van via meerdere stappen.",
-    "Meerdere doorverwijzingen": "Probeer het aantal redirects terug te brengen tot maximaal één.",
-    "Trage serverreactie": "Gebruik caching, een snellere hosting of een CDN.",
-
-    // Goede punten.
-    "Paginatitel gevonden": "Controleer of de titel specifiek is voor deze pagina.",
-    "Meta description gevonden": "Controleer of de samenvatting de inhoud goed beschrijft.",
-    "Eén H1-kop gevonden": "Zorg dat de hoofdkop bezoekers snel vertelt waar de pagina over gaat.",
-    "Koppenvolgorde klopt": "Houd de koppenstructuur logisch bij nieuwe inhoud.",
-    "Alt-attributen gevonden": "Controleer of alt-teksten de inhoud of functie van afbeeldingen beschrijven.",
-    "Afbeeldingen hebben afmetingen": "Voeg bij nieuwe afbeeldingen ook width en height toe.",
-    "HTTPS actief": "Controleer regelmatig of het HTTPS-certificaat geldig blijft.",
-    "Geen mixed content": "Blijf nieuwe onderdelen altijd via https:// toevoegen.",
-    "Pagina mag worden geïndexeerd": "Controleer dat dit ook bedoeld is voor alle belangrijke pagina's.",
-    "Gestructureerde data gevonden": "Test de JSON-LD met de Rich Results Test van Google.",
-    "Favicon gevonden": "Controleer of de favicon er goed uitziet op kleine formaten.",
-    "robots.txt gevonden": "Controleer dat robots.txt geen belangrijke pagina's blokkeert.",
-    "sitemap.xml gevonden": "Houd de sitemap up-to-date als je pagina's toevoegt.",
-    "Beveiligingsheaders aanwezig": "Controleer af en toe of de headers nog goed zijn ingesteld.",
-    "Compressie actief": "Controleer dat ook CSS en JavaScript gecomprimeerd worden.",
-    "Snelle serverreactie": "Houd de reactietijd in de gaten als de website groeit."
-  };
-
-  return tips[title] || "Controleer deze bevinding en kijk of een aanpassing past bij het doel van je pagina.";
-}
-// Bouw de score, bevindingen en adviezen op de pagina op.
+// Bouw de score, categorieën en Lighthouse-verbeterpunten op de pagina op.
 function showReport(data) {
-  const summary = document.createElement("div");
-  summary.className = "summary";
+  const scoreValue = Math.max(0, Math.min(100, Number(data.score) || 0));
 
-  const score = document.createElement("div");
-  score.className = "score";
-  score.textContent = `${data.score}/100`;
+  const scoreBar = document.createElement("section");
+  scoreBar.className = "site-score-bar";
+  scoreBar.setAttribute("aria-label", `Gemiddelde Lighthouse-score: ${scoreValue} van de 100`);
+  scoreBar.innerHTML =
+    '<div class="site-score-bar__label"><strong>Gemiddelde website-score</strong><span><b></b> / 100</span></div>' +
+    '<div class="site-score-bar__track" role="progressbar" aria-label="Gemiddelde website-score" aria-valuemin="0" aria-valuemax="100"><span></span></div>';
+  scoreBar.querySelector(".site-score-bar__label b").textContent = scoreValue;
+  const track = scoreBar.querySelector(".site-score-bar__track");
+  track.setAttribute("aria-valuenow", scoreValue);
+  result.append(scoreBar);
 
-  const facts = document.createElement("p");
-  facts.textContent = `${data.url} · HTTP ${data.status} · ${data.counts.links} links · ${data.counts.images} afbeeldingen`;
-  summary.append(score, facts);
-  result.append(summary);
+  const scoreNote = document.createElement("p");
+  scoreNote.className = "lighthouse-note";
+  scoreNote.textContent = "Gemiddelde van snelheid, toegankelijkheid, veilig bouwen en vindbaarheid op mobiel.";
+  result.append(scoreNote);
+
+  requestAnimationFrame(() => {
+    const fill = scoreBar.querySelector(".site-score-bar__track span");
+    if (fill) fill.style.width = `${scoreValue}%`;
+  });
+
+  const categoryHeading = document.createElement("h2");
+  categoryHeading.className = "section-title";
+  categoryHeading.textContent = "Scores per onderdeel";
+  result.append(categoryHeading);
+
+  const categoryGrid = document.createElement("div");
+  categoryGrid.className = "lighthouse-categories";
+  for (const category of data.categories || []) {
+    const card = document.createElement("article");
+    card.className = "lighthouse-category";
+
+    const title = document.createElement("h3");
+    title.textContent = category.title;
+
+    const value = document.createElement("strong");
+    value.textContent = `${category.score}/100`;
+
+    const meter = document.createElement("div");
+    meter.className = "lighthouse-category__track";
+    meter.setAttribute("role", "progressbar");
+    meter.setAttribute("aria-label", `${category.title}-score`);
+    meter.setAttribute("aria-valuemin", "0");
+    meter.setAttribute("aria-valuemax", "100");
+    meter.setAttribute("aria-valuenow", category.score);
+    const fill = document.createElement("span");
+    fill.style.width = `${category.score}%`;
+    meter.append(fill);
+
+    card.append(title, value, meter);
+    categoryGrid.append(card);
+  }
+  result.append(categoryGrid);
+
+  const downloadButton = document.createElement("button");
+  downloadButton.type = "button";
+  downloadButton.className = "download-report";
+  downloadButton.textContent = "Download rapport als PDF";
+  downloadButton.addEventListener("click", downloadReport);
+  result.append(downloadButton);
+
+  const strengthsHeading = document.createElement("h2");
+  strengthsHeading.className = "section-title";
+  strengthsHeading.textContent = "Wat gaat al goed";
+  result.append(strengthsHeading);
+
+  const strengths = data.strengths || [];
+  if (strengths.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "notice";
+    empty.textContent = "Lighthouse heeft geen positieve controles voor deze scan gerapporteerd.";
+    result.append(empty);
+  }
+
+  for (const strength of strengths) {
+    const card = document.createElement("article");
+    card.className = "finding good";
+
+    const icon = document.createElement("span");
+    icon.className = "icon";
+    icon.textContent = "✓";
+
+    const content = document.createElement("div");
+    const title = document.createElement("h3");
+    title.textContent = strength.title;
+
+    const detail = document.createElement("p");
+    detail.textContent = strength.detail;
+
+    content.append(title, detail);
+    card.append(icon, content);
+    result.append(card);
+  }
 
   const heading = document.createElement("h2");
   heading.className = "section-title";
-  heading.textContent = "Wat we hebben gevonden";
+  heading.textContent = "Wat kan beter";
   result.append(heading);
 
-  // Maak voor elke bevinding een kaart met uitleg en advies.
-  for (const finding of data.findings) {
+  const findings = data.findings || [];
+  if (findings.length === 0) {
+    const empty = document.createElement("p");
+    empty.className = "notice";
+    empty.textContent = "Lighthouse heeft geen verbeterpunten voor deze scan gerapporteerd.";
+    result.append(empty);
+  }
+
+  for (const finding of findings) {
     const card = document.createElement("article");
     card.className = `finding ${finding.level}`;
 
     const icon = document.createElement("span");
     icon.className = "icon";
-    icon.textContent = finding.level === "good" ? "✓" : "!";
+    icon.textContent = finding.level === "high" ? "!" : "↗";
 
     const content = document.createElement("div");
     const title = document.createElement("h3");
@@ -127,12 +157,15 @@ function showReport(data) {
 
     const detail = document.createElement("p");
     detail.textContent = finding.detail;
+    content.append(title, detail);
 
-    const advice = document.createElement("p");
-    advice.className = "advice";
-    advice.textContent = `Advies: ${recommendationFor(finding.title)}`;
+    if (finding.advice) {
+      const advice = document.createElement("p");
+      advice.className = "advice";
+      advice.textContent = `Advies: ${finding.advice}`;
+      content.append(advice);
+    }
 
-    content.append(title, detail, advice);
     card.append(icon, content);
     result.append(card);
   }
@@ -141,4 +174,40 @@ function showReport(data) {
   notice.className = "notice";
   notice.textContent = data.notice;
   result.append(notice);
+}
+
+// Vraag de server om een PDF en start de download in de browser.
+async function downloadReport() {
+  const downloadButton = result.querySelector(".download-report");
+  if (!latestReport || !downloadButton) return;
+
+  downloadButton.disabled = true;
+  downloadButton.textContent = "PDF wordt gemaakt...";
+  try {
+    const response = await fetch("/api/report.pdf", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(latestReport),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.error || "Het PDF-rapport kon niet worden gemaakt.");
+    }
+
+    const pdf = await response.blob();
+    const downloadUrl = URL.createObjectURL(pdf);
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.download = "lighthouse-rapport.pdf";
+    document.body.append(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(downloadUrl);
+  } catch (error) {
+    message.textContent = error.message;
+  } finally {
+    downloadButton.disabled = false;
+    downloadButton.textContent = "Download rapport als PDF";
+  }
 }
